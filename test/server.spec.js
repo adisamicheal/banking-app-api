@@ -1,73 +1,110 @@
 const supertest = require("supertest");
-const assert = require("assert");
-const account = require("../routes/apis/account");
- 
+const assert = require('assert');
+const account = require('../routes/apis/account');
+
 describe("GET /", function() {
-	it("it should have status code 200", function() {
-		supertest(account)
-		.get("/")
-		.expect(200)
-		.end(function(err, res) {
-			if (err) done(err);
-			done();
-		});
-	});
+  it("it should have a response of all the bank accounts", function() {
+    supertest(account)
+      .get("/")
+      .expect({ 
+      name: "name",
+      accountnumber: "accountnumber",
+      email: "email",})
+      .end(function(err, res){
+      if (err) done(err);
+      done();
+    });
+  });
 });
 
- it("it shoud has response with hope key with value of loop", function(){
+describe("GET /single/:id", function() {
+  it("it should have details of a single bank account", function() {
+    let eachAccount = { 
+      name: "name",
+      accountnumber: "accountnumber",
+      email: "email"
+      }
       supertest(account)
-        .get("/")
-        .expect(account)
-        .end(function(err, res){
-          if (err) done(err);
-          done();
-        });
- });
-
- describe("POST /", function(){
-    it("it shoud return status code 200 is name exists", function() {
-      supertest(account)
-        .post("/")
-        .send({name: "Micheal", accountnumber: "009484747", email: "micheal@gmail.com"})
-        .expect(200)
-        .end(function(err, res){
-          if (err) done(err);
-          done();
-        });
+      .get("/single/:id")
+      .expect(eachAccount)
+      .expect(function(res) {
+      assert.equal(res.body.message, 'Details of a single account accepted');
+      done();
     });
   });
+});
 
-it("it shoud return status code 400 if we dosent send anything", function(){
-    supertest(account)
-      .post("/")
-      .send({})
-      .expect(400)
-      .end(function(err, res){
-        if (err) done(err);
-        done();
-      });
-  });
-
- describe("PUT /", function(){
-    it("it shoud return status code 200 is name exists", function() {
+describe("POST /createnew", function(){
+  it("To create a new bank account", function() {
+    let eachAccount = { 
+      name: "name",
+      accountnumber: "accountnumber",
+      email: "email"
+      }
       supertest(account)
-        .put("/")
-        .send({name: "Micheal", accountnumber: "009484747", email: "micheal@gmail.com"})
-        .expect(200)
-        .end(function(err, res){
-          if (err) done(err);
-          done();
-        });
+      .post("/createnew")
+      .send(eachAccount)
+      .expect(eachAccount)
+      .expect(function(res) {
+      assert.equal(res.body.message, 'New account created');
+      done();
     });
   });
+});
 
-it("it shoud return status code 400 if we dosent post anything", function(){
-    supertest(account)
-      .put("/")
-      .send({})
-      .expect(400)
-      .end(function(err, res){
-        if (err) done(err);
-        done();
-      });
+it("it shoud return status code 400 if nothing is sent", function(){
+  supertest(account)
+    .post("/createnew")
+    .send({})
+    .expect(400)
+    .expect(function(res) {
+    assert.equal(res.body.message, 'No details yet');
+    done();
   });
+});
+
+describe("PUT /edit/:id", function(){
+  it("To edit an existing bank account", function() {
+    let editedAccount = { 
+      name: "name",
+      accountnumber: "accountnumber",
+      email: "email",
+      }
+      supertest(account)
+      .post("/edit/:id")
+      .send(editedAccount)
+      .expect(editedAccount)
+      .expect(function(res) {
+      assert.equal(res.body.message, 'Account Edited !');
+      done();
+    });
+  });
+});
+
+it("It should return a status code 400 if nothing is sent", function(){
+  supertest(account)
+    .post("/edit/:id")
+    .send({})
+    .expect(400)
+    .expect(function(res) {
+    assert.equal(res.body.message, 'Please input details');
+    done();
+  });
+});
+
+describe("DELETE /:id", function() {
+  it("It should have details of a single bank account", function() {
+    let eachAccount = { 
+      name: "name",
+      accountnumber: "accountnumber",
+      email: "email",
+      }
+      supertest(account)
+      .get("/:id")
+      .expect(eachAccount)
+      .expect(function(res) {
+      assert.equal(res.body.message, 'Account Deleted !');
+      done();
+    });
+  });
+});
